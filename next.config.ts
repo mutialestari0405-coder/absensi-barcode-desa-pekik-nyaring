@@ -7,9 +7,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  // Ikutkan template database (dipakai bootstrap-db.ts saat deploy ke hosting baru)
+  // Ikutkan berkas pendukung saat deploy: template database (bootstrap-db.ts)
+  // dan skrip export Excel (dipanggil /api/export)
   outputFileTracingIncludes: {
-    "/**": ["./prisma/template.db"],
+    "/**": ["./prisma/template.db", "./scripts/export_excel.py"],
   },
 };
 

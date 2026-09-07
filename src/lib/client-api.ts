@@ -32,6 +32,7 @@ export interface AbsensiRecord {
   jamDatang: string | null
   jamPulang: string | null
   kategori: string
+  keteranganKehadiran: string
   metode: string
   latitude: number | null
   longitude: number | null

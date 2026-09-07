@@ -1,17 +1,43 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { authFetch, type AbsensiRecord } from '@/lib/client-api'
+import { authFetch, type AbsensiRecord, type Perangkat } from '@/lib/client-api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { getTanggalJakarta, formatTanggalIndo } from '@/lib/waktu'
 import {
-  History, FileSpreadsheet, LoaderCircle, Search, Trash2, Download, X, MapPin,
+  History, FileSpreadsheet, LoaderCircle, Search, Trash2, Download, X, MapPin, Plus,
 } from 'lucide-react'
+
+// Pilihan keterangan kehadiran yang bisa diubah admin
+const PILIHAN_KETERANGAN = [
+  { nilai: 'MASUK', label: 'Masuk' },
+  { nilai: 'IZIN', label: 'Izin' },
+  { nilai: 'SAKIT', label: 'Sakit' },
+  { nilai: 'DINAS_LUAR', label: 'Dinas Luar' },
+  { nilai: 'ALPA', label: 'Alpa' },
+] as const
+
+function warnaKeterangan(k: string): string {
+  switch (k) {
+    case 'MASUK': return 'bg-brand-green-700 text-white hover:bg-brand-green-700'
+    case 'IZIN': return 'bg-brand-gold-500 text-brand-green-950 hover:bg-brand-gold-500'
+    case 'SAKIT': return 'bg-red-500 text-white hover:bg-red-500'
+    case 'DINAS_LUAR': return 'bg-blue-500 text-white hover:bg-blue-500'
+    case 'ALPA': return 'bg-gray-500 text-white hover:bg-gray-500'
+    default: return 'bg-gray-300 text-gray-800 hover:bg-gray-300'
+  }
+}
 
 export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: number; onMutate: () => void }) {
   const [data, setData] = useState<AbsensiRecord[]>([])
@@ -20,6 +46,16 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
   const [sampai, setSampai] = useState(getTanggalJakarta())
   const [q, setQ] = useState('')
   const [exportLoading, setExportLoading] = useState(false)
+  const [dialogBuka, setDialogBuka] = useState(false)
+  const [daftarPerangkat, setDaftarPerangkat] = useState<Perangkat[]>([])
+  const [simpanLoading, setSimpanLoading] = useState(false)
+  const [form, setForm] = useState({
+    perangkatId: '',
+    tanggal: getTanggalJakarta(),
+    keterangan: 'IZIN',
+    jamDatang: '',
+    jamPulang: '',
+  })
   const { toast } = useToast()
 
   const muat = useCallback(async () => {
@@ -42,6 +78,70 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
   useEffect(() => {
     muat()
   }, [muat, refreshToken])
+
+  // Ubah keterangan kehadiran satu record langsung dari tabel
+  async function ubahKeterangan(id: number, keterangan: string) {
+    const sebelumnya = data.find((a) => a.id === id)?.keteranganKehadiran
+    setData((lama) => lama.map((a) => (a.id === id ? { ...a, keteranganKehadiran: keterangan } : a)))
+    try {
+      const res = await authFetch(`/api/absensi/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ keteranganKehadiran: keterangan }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        toast({ title: 'Tersimpan', description: json.message })
+        onMutate()
+      } else {
+        throw new Error(json.message)
+      }
+    } catch (e) {
+      setData((lama) => lama.map((a) => (a.id === id ? { ...a, keteranganKehadiran: sebelumnya ?? 'MASUK' } : a)))
+      toast({ title: 'Gagal', description: e instanceof Error ? e.message : 'Tidak dapat mengubah keterangan', variant: 'destructive' })
+    }
+  }
+
+  // Buka dialog absensi manual + muat daftar perangkat
+  async function bukaDialogManual() {
+    setDialogBuka(true)
+    setForm({ perangkatId: '', tanggal: getTanggalJakarta(), keterangan: 'IZIN', jamDatang: '', jamPulang: '' })
+    try {
+      const res = await authFetch('/api/perangkat')
+      const json = await res.json()
+      if (json.success) setDaftarPerangkat(json.data)
+    } catch {
+      // abaikan — daftar tetap kosong
+    }
+  }
+
+  async function simpanManual() {
+    setSimpanLoading(true)
+    try {
+      const res = await authFetch('/api/absensi', {
+        method: 'POST',
+        body: JSON.stringify({
+          perangkatId: Number(form.perangkatId),
+          tanggal: form.tanggal,
+          keteranganKehadiran: form.keterangan,
+          jamDatang: form.jamDatang || null,
+          jamPulang: form.jamPulang || null,
+        }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        toast({ title: 'Berhasil', description: json.message })
+        setDialogBuka(false)
+        muat()
+        onMutate()
+      } else {
+        toast({ title: 'Gagal', description: json.message, variant: 'destructive' })
+      }
+    } catch {
+      toast({ title: 'Gagal', description: 'Tidak dapat menyimpan absensi manual', variant: 'destructive' })
+    } finally {
+      setSimpanLoading(false)
+    }
+  }
 
   async function exportExcel() {
     setExportLoading(true)
@@ -102,14 +202,24 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
                 {dari && sampai ? ` untuk ${formatTanggalIndo(dari)} s.d. ${formatTanggalIndo(sampai)}` : ''}
               </CardDescription>
             </div>
-            <Button
-              onClick={exportExcel}
-              disabled={exportLoading}
-              className="bg-brand-gold-500 hover:bg-brand-gold-600 text-brand-green-950 font-semibold"
-            >
-              {exportLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
-              Export Excel
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={bukaDialogManual}
+                variant="outline"
+                className="border-brand-green-200 text-brand-green-800 hover:bg-brand-green-50 font-semibold"
+              >
+                <Plus className="w-4 h-4" />
+                Tambah Manual
+              </Button>
+              <Button
+                onClick={exportExcel}
+                disabled={exportLoading}
+                className="bg-brand-gold-500 hover:bg-brand-gold-600 text-brand-green-950 font-semibold"
+              >
+                {exportLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+                Export Excel
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -154,7 +264,7 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
             </div>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-brand-green-50 max-h-[600px] overflow-y-auto custom-scrollbar">
-              <table className="w-full text-sm min-w-[1020px]">
+              <table className="w-full text-sm min-w-[1140px]">
                 <thead className="sticky top-0 bg-brand-green-50 text-brand-green-900">
                   <tr>
                     <th className="text-left px-3 py-2.5 font-semibold whitespace-nowrap">Tanggal</th>
@@ -162,6 +272,7 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
                     <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Datang</th>
                     <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Pulang</th>
                     <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Kategori</th>
+                    <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Keterangan</th>
                     <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Metode</th>
                     <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Lokasi GPS</th>
                     <th className="text-center px-3 py-2.5 font-semibold whitespace-nowrap">Aksi</th>
@@ -189,6 +300,26 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
                         >
                           {a.kategori === 'AKTIF' ? 'AKTIF' : 'PASIF'}
                         </Badge>
+                      </td>
+                      <td className="px-3 py-2.5 text-center">
+                        <Select
+                          value={a.keteranganKehadiran}
+                          onValueChange={(v) => ubahKeterangan(a.id, v)}
+                        >
+                          <SelectTrigger className="h-8 w-[130px] mx-auto border-brand-green-100 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PILIHAN_KETERANGAN.map((p) => (
+                              <SelectItem key={p.nilai} value={p.nilai} className="text-xs">
+                                <span className="inline-flex items-center gap-2">
+                                  <span className={`inline-block h-2 w-2 rounded-full ${warnaKeterangan(p.nilai)}`} />
+                                  {p.label}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         <span className="text-xs text-muted-foreground">{a.metode}</span>
@@ -230,6 +361,97 @@ export default function RiwayatView({ refreshToken, onMutate }: { refreshToken: 
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={dialogBuka} onOpenChange={setDialogBuka}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle className="text-brand-green-900">Tambah Absensi Manual</DialogTitle>
+            <DialogDescription>
+              Catat kehadiran tanpa scan — misalnya Izin, Sakit, Dinas Luar, atau Alpa.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-brand-green-900 text-xs">Perangkat Desa</Label>
+              <Select
+                value={form.perangkatId}
+                onValueChange={(v) => setForm((f) => ({ ...f, perangkatId: v }))}
+              >
+                <SelectTrigger className="border-brand-green-100">
+                  <SelectValue placeholder="Pilih perangkat" />
+                </SelectTrigger>
+                <SelectContent>
+                  {daftarPerangkat.map((p) => (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      {p.nama} — {p.nipd}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-brand-green-900 text-xs">Tanggal</Label>
+              <Input
+                type="date"
+                value={form.tanggal}
+                onChange={(e) => setForm((f) => ({ ...f, tanggal: e.target.value }))}
+                className="border-brand-green-100"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-brand-green-900 text-xs">Keterangan</Label>
+              <Select
+                value={form.keterangan}
+                onValueChange={(v) => setForm((f) => ({ ...f, keterangan: v }))}
+              >
+                <SelectTrigger className="border-brand-green-100">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PILIHAN_KETERANGAN.map((p) => (
+                    <SelectItem key={p.nilai} value={p.nilai}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-brand-green-900 text-xs">Jam Datang (opsional)</Label>
+                <Input
+                  type="time"
+                  value={form.jamDatang}
+                  onChange={(e) => setForm((f) => ({ ...f, jamDatang: e.target.value }))}
+                  className="border-brand-green-100"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-brand-green-900 text-xs">Jam Pulang (opsional)</Label>
+                <Input
+                  type="time"
+                  value={form.jamPulang}
+                  onChange={(e) => setForm((f) => ({ ...f, jamPulang: e.target.value }))}
+                  className="border-brand-green-100"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogBuka(false)} className="border-brand-green-100">
+              Batal
+            </Button>
+            <Button
+              onClick={simpanManual}
+              disabled={simpanLoading || !form.perangkatId}
+              className="bg-brand-green-700 hover:bg-brand-green-800 text-white font-semibold"
+            >
+              {simpanLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              Simpan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

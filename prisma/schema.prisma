@@ -43,6 +43,7 @@ model Absensi {
   jamDatang   String? // HH:mm:ss
   jamPulang   String? // HH:mm:ss
   kategori    String // AKTIF (datang & pulang) | PASIF (datang saja)
+  keteranganKehadiran String @default("MASUK") // MASUK | IZIN | SAKIT | DINAS_LUAR | ALPA
   metode      String    @default("SCAN") // SCAN | MANUAL
   latitude    Float? // Lokasi GPS saat absen datang
   longitude   Float?

@@ -59,6 +59,7 @@ export async function GET(req: NextRequest) {
         jamDatang: a.jamDatang,
         jamPulang: a.jamPulang,
         kategori: a.kategori,
+        keteranganKehadiran: a.keteranganKehadiran,
         metode: a.metode,
         latitude: a.latitude,
         longitude: a.longitude,
