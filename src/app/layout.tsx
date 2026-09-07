@@ -16,12 +16,33 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(URL_SITUS),
-  title: SITE.namaAplikasi,
-  description: `Sistem absensi berbasis QR Code dengan kamera scanner untuk Perangkat Desa ${SITE.namaDesa}, Kecamatan ${SITE.kecamatan}, Kabupaten ${SITE.kabupaten}.`,
-  keywords: ["absensi desa", "QR code", "perangkat desa", SITE.namaDesa, SITE.kecamatan, SITE.kabupaten],
+  title: `Absensi Perangkat Desa ${SITE.namaDesa} — Sistem Absensi QR`,
+  description: `Absensi Perangkat Desa ${SITE.namaDesa}, Kecamatan ${SITE.kecamatan}, Kabupaten ${SITE.kabupaten}. Sistem absensi online berbasis QR Code dengan kamera scanner — praktis, cepat, tanpa aplikasi tambahan, langsung dari HP.`,
+  keywords: [
+    `absensi perangkat desa ${SITE.namaDesa}`,
+    `absensi desa ${SITE.namaDesa}`,
+    "absensi qr code desa",
+    "absensi online perangkat desa",
+    "sistem absensi qr",
+    SITE.namaDesa,
+    `kecamatan ${SITE.kecamatan}`,
+    SITE.kabupaten,
+    "bengkulu tengah",
+  ],
   authors: [{ name: SITE.pemerintahDesa }],
   icons: {
     icon: SITE.logo,
+  },
+  openGraph: {
+    title: `Absensi Perangkat Desa ${SITE.namaDesa}`,
+    description: `Sistem absensi online berbasis QR Code untuk Perangkat Desa ${SITE.namaDesa}, Kecamatan ${SITE.kecamatan}, Kabupaten ${SITE.kabupaten}.`,
+    type: "website",
+    locale: "id_ID",
+    siteName: `Absensi Perangkat Desa ${SITE.namaDesa}`,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

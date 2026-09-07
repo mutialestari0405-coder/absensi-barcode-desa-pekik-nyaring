@@ -40,9 +40,10 @@ export const SITE = {
   logo: ambil('NEXT_PUBLIC_LOGO', '/logo-kabupaten-bengkulu-tengah.png'),
   /**
    * Domain publik situs (tanpa https://). Dipakai untuk metadata/canonical.
-   * Kosongkan bila belum punya domain — aplikasi tetap jalan normal.
+   * Default: domain permanen di Vercel — agar situs dikenali Google di alamat itu.
+   * Setelah punya domain sendiri, ganti lewat .env (NEXT_PUBLIC_DOMAIN).
    */
-  domain: ambil('NEXT_PUBLIC_DOMAIN', ''),
+  domain: ambil('NEXT_PUBLIC_DOMAIN', 'absensi-barcode-desa-pekiknyaring.vercel.app'),
   /** Tahun hak cipta footer */
   tahunHakCipta: new Date().getFullYear(),
 } as const
