@@ -37,7 +37,7 @@ Prasyarat: **Node.js 18+** (atau Bun).
 
 ```bash
 # 1. Unduh kode
-git clone https://github.com/elstarzz17-lab/absensi-perangkat-desa-pekiknyaring.git
+git clone https://github.com/mutialestari0405-coder/absensi-perangkat-desa-pekiknyaring.git
 cd absensi-perangkat-desa-pekiknyaring
 
 # 2. Pasang dependensi
@@ -91,7 +91,7 @@ Ingin logo berbeda? Taruh file gambar di folder `public/` lalu isi
 
 ## Publish ke GitHub
 
-Repositori resmi: **https://github.com/elstarzz17-lab/absensi-perangkat-desa-pekiknyaring**
+Repositori resmi: **https://github.com/mutialestari0405-coder/absensi-perangkat-desa-pekiknyaring**
 
 > **Penting**: database SQLite berisi **NIK (data pribadi)** sudah dikecualikan
 > lewat `.gitignore` — tidak akan ikut terunggah. Data pribadi penduduk tetap
