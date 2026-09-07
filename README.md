@@ -122,7 +122,7 @@ port aplikasi, lalu pasang SSL gratis dengan Certbot (Let's Encrypt).
 
 ### Pilihan B — Vercel (sekali klik, langsung online)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Felstarzz17-lab%2Fabsensi-perangkat-desa-pekiknyaring&project-name=absensi-barcode-desa-pekiknyaring&env=DATABASE_URL,AUTH_SECRET,NEXT_PUBLIC_NAMA_DESA,NEXT_PUBLIC_KECAMATAN,NEXT_PUBLIC_KABUPATEN,NEXT_PUBLIC_NAMA_PEMERINTAH,NEXT_PUBLIC_LOGO&DATABASE_URL=file%3A%2Ftmp%2Fcustom.db&NEXT_PUBLIC_NAMA_DESA=Pekik%20Nyaring&NEXT_PUBLIC_KECAMATAN=Pondok%20Kelapa&NEXT_PUBLIC_KABUPATEN=Bengkulu%20Tengah&NEXT_PUBLIC_NAMA_PEMERINTAH=Pemerintah%20Desa%20Pekik%20Nyaring&NEXT_PUBLIC_LOGO=%2Flogo-kabupaten-bengkulu-tengah.png)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmutialestari0405-coder%2Fabsensi-perangkat-desa-pekiknyaring&project-name=absensi-barcode-desa-pekiknyaring&env=DATABASE_URL,AUTH_SECRET,NEXT_PUBLIC_NAMA_DESA,NEXT_PUBLIC_KECAMATAN,NEXT_PUBLIC_KABUPATEN,NEXT_PUBLIC_NAMA_PEMERINTAH,NEXT_PUBLIC_LOGO&DATABASE_URL=file%3A%2Ftmp%2Fcustom.db&AUTH_SECRET=d736ac779295c0ced2238ee8d2e169eeba4810d8e0dd03bc611975b2be1993e0&NEXT_PUBLIC_NAMA_DESA=Pekik%20Nyaring&NEXT_PUBLIC_KECAMATAN=Pondok%20Kelapa&NEXT_PUBLIC_KABUPATEN=Bengkulu%20Tengah&NEXT_PUBLIC_NAMA_PEMERINTAH=Pemerintah%20Desa%20Pekik%20Nyaring&NEXT_PUBLIC_LOGO=%2Flogo-kabupaten-bengkulu-tengah.png)
 
 1. Klik tombol di atas → login ke Vercel **memakai akun GitHub**
 2. Semua Environment Variables sudah terisi otomatis — tinggal klik **Deploy**
