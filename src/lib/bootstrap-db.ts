@@ -28,10 +28,10 @@ export async function pastikanDatabaseSiap(): Promise<void> {
       jalur = path.join(process.cwd(), 'prisma', jalur)
     }
 
-    if (existsSync(jalur)) return // database sudah ada — tidak ada yang perlu dilakukan
+    if (existsSync(/*turbopackIgnore: true*/ jalur)) return // database sudah ada — tidak ada yang perlu dilakukan
 
     const templat = path.join(process.cwd(), 'prisma', 'template.db')
-    if (!existsSync(templat)) return // templat tidak ikut ter-bundle — biarkan aplikasi jalan
+    if (!existsSync(/*turbopackIgnore: true*/ templat)) return // templat tidak ikut ter-bundle — biarkan aplikasi jalan
 
     mkdirSync(path.dirname(jalur), { recursive: true })
     copyFileSync(templat, jalur)
