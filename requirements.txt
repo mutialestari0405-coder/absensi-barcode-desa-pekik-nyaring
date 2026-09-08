@@ -1,0 +1,4 @@
+# Dependensi Python untuk fitur Export Excel (dipanggil /api/export).
+# Install: pip install -r requirements.txt
+# Catatan: di beberapa sistem Debian/Ubuntu perlu: pip install openpyxl --break-system-packages
+openpyxl>=3.1
