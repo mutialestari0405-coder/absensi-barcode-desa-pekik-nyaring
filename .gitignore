@@ -60,6 +60,7 @@ server.log
 # Seed asli berisi data NIK perangkat desa — HANYA seed-admin.mjs yang diunggah
 /scripts/*
 !/scripts/seed-admin.mjs
+!/scripts/export_excel.py
 # File kerja lokal lainnya
 tool-results/
 download/
